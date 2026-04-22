@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOC — 6EC4-03 Study Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070709;
+    --surface: #0f0f12;
+    --surface2: #16161b;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(245,166,35,0.4);
+    --amber: #F5A623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --amber-glow: rgba(245,166,35,0.25);
+    --red: #FF4545;
+    --red-dim: rgba(255,69,69,0.1);
+    --green: #22C55E;
+    --green-dim: rgba(34,197,94,0.1);
+    --yellow: #EAB308;
+    --yellow-dim: rgba(234,179,8,0.1);
+    --blue: #60A5FA;
+    --blue-dim: rgba(96,165,250,0.1);
+    --text: #E8E8E8;
+    --text-dim: #888;
+    --text-faint: #444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── NOISE TEXTURE ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(7,7,9,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 56px;
+  }
+
+  .nav-brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    color: var(--amber);
+  }
+
+  .nav-brand span { color: var(--text-dim); font-weight: 400; }
+
+  .nav-links {
+    display: flex;
+    gap: 2px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 6px 14px;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--amber);
+    background: var(--amber-dim);
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 140px 40px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--amber-dim);
+    border: 1px solid var(--amber-glow);
+    color: var(--amber);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(42px, 6vw, 80px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 span { color: var(--amber); }
+
+  .hero-sub {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--text-dim);
+    margin-top: 20px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 48px;
+    animation: fadeUp 0.6s 0.3s ease both;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 36px;
+    color: var(--amber);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ─── SECTION ─── */
+  .section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 80px 40px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding-bottom: 4px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: -0.02em;
+  }
+
+  .section-desc {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-left: auto;
+    max-width: 300px;
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  /* ─── TABLE ─── */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: default;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+
+  tbody tr:hover { background: var(--surface); }
+
+  tbody td {
+    padding: 12px 16px;
+    vertical-align: top;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .vid-num {
+    color: var(--text-faint);
+    font-size: 11px;
+    min-width: 28px;
+  }
+
+  .vid-title {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.5;
+    min-width: 200px;
+  }
+
+  .vid-topics {
+    color: var(--text-dim);
+    font-size: 11px;
+    line-height: 1.6;
+    min-width: 220px;
+  }
+
+  /* ─── BADGES ─── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge-unit {
+    background: var(--blue-dim);
+    color: var(--blue);
+    border: 1px solid rgba(96,165,250,0.2);
+  }
+
+  .badge-u2 { background: rgba(139,92,246,0.1); color: #A78BFA; border: 1px solid rgba(139,92,246,0.2); }
+  .badge-u3 { background: rgba(59,130,246,0.1); color: #60A5FA; border: 1px solid rgba(59,130,246,0.2); }
+  .badge-u4 { background: rgba(34,197,94,0.1); color: #4ADE80; border: 1px solid rgba(34,197,94,0.2); }
+  .badge-u5 { background: rgba(245,158,11,0.1); color: #FCD34D; border: 1px solid rgba(245,158,11,0.2); }
+  .badge-u6 { background: rgba(239,68,68,0.1); color: #F87171; border: 1px solid rgba(239,68,68,0.2); }
+  .badge-u1 { background: rgba(156,163,175,0.1); color: #9CA3AF; border: 1px solid rgba(156,163,175,0.2); }
+
+  .badge-watch { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-2x { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(234,179,8,0.2); }
+  .badge-skip { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,69,69,0.2); }
+  .badge-1x5 { background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+
+  .badge-pyq-yes { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .badge-pyq-partial { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(234,179,8,0.2); }
+  .badge-pyq-no { background: rgba(68,68,68,0.3); color: var(--text-faint); border: 1px solid rgba(68,68,68,0.4); }
+
+  /* ─── CHECKBOX ─── */
+  .cb-wrap { display: flex; justify-content: center; }
+
+  .cb-wrap input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--amber);
+    cursor: pointer;
+  }
+
+  /* ─── COVERAGE BARS ─── */
+  .coverage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .coverage-card {
+    background: var(--surface);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+
+  .coverage-card:hover { background: var(--surface2); }
+
+  .coverage-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .cov-u2::before { background: #A78BFA; }
+  .cov-u3::before { background: #60A5FA; }
+  .cov-u4::before { background: #4ADE80; }
+  .cov-u5::before { background: #FCD34D; }
+  .cov-u6::before { background: #F87171; }
+
+  .cov-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .cov-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .cov-pct {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .bar-track {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 0%;
+  }
+
+  .cov-u2 .bar-fill { background: #A78BFA; }
+  .cov-u3 .bar-fill { background: #60A5FA; }
+  .cov-u4 .bar-fill { background: #4ADE80; }
+  .cov-u5 .bar-fill { background: #FCD34D; }
+  .cov-u6 .bar-fill { background: #F87171; }
+
+  .cov-topics {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cov-topic {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+  }
+
+  .cov-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-ok { background: var(--green); }
+  .dot-partial { background: var(--yellow); }
+  .dot-miss { background: var(--red); }
+
+  .cov-topic-name { color: var(--text-dim); }
+
+  /* ─── MISSING TOPICS ─── */
+  .gap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 16px;
+  }
+
+  .gap-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .gap-card:hover {
+    border-color: var(--border-hover);
+    background: var(--surface2);
+  }
+
+  .gap-card.critical { border-color: rgba(255,69,69,0.25); }
+  .gap-card.critical::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+  }
+
+  .gap-card.high { border-color: rgba(245,166,35,0.25); }
+  .gap-card.high::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--amber);
+  }
+
+  .gap-tag {
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .gap-tag.critical { color: var(--red); }
+  .gap-tag.high { color: var(--amber); }
+
+  .gap-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .gap-pyq {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .gap-action {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .gap-action-icon {
+    font-size: 14px;
+  }
+
+  /* ─── PYQ TABLE ─── */
+  .pyq-filter {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--amber-dim);
+    border-color: var(--amber-glow);
+    color: var(--amber);
+  }
+
+  .freq-star { color: var(--amber); }
+
+  /* ─── PRIORITY GRID ─── */
+  .priority-section {
+    margin-bottom: 48px;
+  }
+
+  .priority-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .priority-label-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .priority-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .p-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .p-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    background: var(--surface);
+    min-width: 200px;
+    flex: 1;
+    max-width: 280px;
+    transition: all 0.2s;
+  }
+
+  .p-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+
+  .p-topic {
+    font-weight: 500;
+    font-size: 12px;
+    margin-bottom: 8px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .p-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .p-freq {
+    font-size: 10px;
+    color: var(--text-faint);
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .divider-inner {
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 11px;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── OVERALL COVERAGE BAR ─── */
+  .overall-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .overall-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--amber);
+    flex-shrink: 0;
+  }
+
+  .overall-right { flex: 1; }
+
+  .overall-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .overall-track {
+    height: 8px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .overall-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), #FF6B00);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .overall-note {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ─── SCROLL TO TOP ─── */
+  #scrollTop {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    width: 40px; height: 40px;
+    background: var(--amber);
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s;
+    z-index: 200;
+  }
+
+  #scrollTop:hover { transform: translateY(-2px); }
+  #scrollTop.show { display: flex; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    .hero, .section { padding-left: 20px; padding-right: 20px; }
+    .hero h1 { font-size: 36px; }
+    .overall-bar { flex-direction: column; gap: 20px; }
+    .gap-grid { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">FOC <span>/ 6EC4-03</span></div>
+  <ul class="nav-links">
+    <li><a href="#checklist">Checklist</a></li>
+    <li><a href="#coverage">Coverage</a></li>
+    <li><a href="#gaps">Gaps</a></li>
+    <li><a href="#pyq">PYQ Map</a></li>
+    <li><a href="#priority">Priority</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">RTU B.Tech VI Sem · ECE · 2025–26</div>
+  <h1>Fiber Optics<br><span>Study Command</span><br>Center</h1>
+  <div class="hero-sub">Every video mapped. Every PYQ tracked. Every gap flagged.</div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">30</div><div class="stat-label">Total Videos</div></div>
+    <div class="stat"><div class="stat-num">72<span style="font-size:20px">%</span></div><div class="stat-label">Syllabus Covered</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-label">Years of PYQs</div></div>
+    <div class="stat"><div class="stat-num">10</div><div class="stat-label">Critical Gaps</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 1: VIDEO CHECKLIST -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section reveal" id="checklist">
+  <div class="section-header">
+    <div>
+      <div class="section-num">01 / Video Checklist</div>
+      <div class="section-title">All 30 Videos Mapped</div>
+    </div>
+    <div class="section-desc">Tick each video as you watch. Action tells you how to watch it.</div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="videoTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Done</th>
+          <th>Video Title</th>
+          <th>Unit</th>
+          <th>Topics Covered</th>
+          <th>Action</th>
+          <th>PYQ?</th>
+        </tr>
+      </thead>
+      <tbody id="videoBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 2: UNIT COVERAGE -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section reveal" id="coverage">
+  <div class="section-header">
+    <div>
+      <div class="section-num">02 / Unit Coverage</div>
+      <div class="section-title">Playlist vs Syllabus</div>
+    </div>
+    <div class="section-desc">Green = playlist covers it. Red = missing. Yellow = partial.</div>
+  </div>
+
+  <div class="overall-bar">
+    <div class="overall-num">72%</div>
+    <div class="overall-right">
+      <div class="overall-label">Overall Syllabus Coverage</div>
+      <div class="overall-track"><div class="overall-fill" data-width="72"></div></div>
+      <div class="overall-note">28% gap = SPM/GVD/Kerr + Modal Analysis + Fabrication. High PYQ repeat — study separately.</div>
+    </div>
+  </div>
+
+  <div class="coverage-grid" id="coverageGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 3: MISSING TOPICS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section reveal" id="gaps">
+  <div class="section-header">
+    <div>
+      <div class="section-num">03 / Critical Gaps</div>
+      <div class="section-title">What the Playlist Misses</div>
+    </div>
+    <div class="section-desc">These aren't in the playlist but appear in PYQs. Don't skip them.</div>
+  </div>
+  <div class="gap-grid" id="gapGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 4: PYQ MAP -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section reveal" id="pyq">
+  <div class="section-header">
+    <div>
+      <div class="section-num">04 / PYQ Map</div>
+      <div class="section-title">2022–2025 Questions Mapped</div>
+    </div>
+    <div class="section-desc">Every exam question linked to topic, unit, and which video covers it.</div>
+  </div>
+
+  <div class="pyq-filter">
+    <button class="filter-btn active" data-filter="all" onclick="filterPYQ(this,'all')">All Years</button>
+    <button class="filter-btn" data-filter="2022" onclick="filterPYQ(this,'2022')">2022</button>
+    <button class="filter-btn" data-filter="2023" onclick="filterPYQ(this,'2023')">2023</button>
+    <button class="filter-btn" data-filter="2024" onclick="filterPYQ(this,'2024')">2024</button>
+    <button class="filter-btn" data-filter="2025" onclick="filterPYQ(this,'2025')">2025</button>
+    <button class="filter-btn" data-filter="repeat" onclick="filterPYQ(this,'repeat')">👑 Repeat</button>
+    <button class="filter-btn" data-filter="missing" onclick="filterPYQ(this,'missing')">❌ Not Covered</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Part</th>
+          <th>Question / Topic</th>
+          <th>Unit</th>
+          <th>Video</th>
+          <th>Frequency</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="pyqBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- SECTION 5: PRIORITY TAGS -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section reveal" id="priority">
+  <div class="section-header">
+    <div>
+      <div class="section-num">05 / Smart Priority</div>
+      <div class="section-title">Topic-wise Priority Tags</div>
+    </div>
+    <div class="section-desc">Based on PYQ frequency, marks weight, and exam patterns.</div>
+  </div>
+  <div id="priorityContent"></div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>FOC Study Dashboard · 6EC4-03 · RTU B.Tech VI Sem ECE</div>
+  <div>PYQs: 2022 – 2025 · Playlist: 30 videos · Built for exam prep</div>
+</footer>
+
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const videos = [
+  { num:1, title:"Optical Fiber Communication System", unit:"U1/U2", topics:"Block diagram, OFC working principle, advantages & disadvantages", action:"watch", pyq:"yes" },
+  { num:2, title:"Critical Angle, Acceptance Angle & NA", unit:"U2", topics:"TIR, Snell's law, NA derivation, acceptance angle formula", action:"watch", pyq:"yes" },
+  { num:3, title:"V Number & Types of Optical Fibers", unit:"U2", topics:"V number, SIF, GIF, single mode, multimode, refractive index profiles", action:"watch", pyq:"yes" },
+  { num:4, title:"Solved Problems of GIF & SIF", unit:"U2", topics:"Numerical: NA, V number, number of modes, clad refractive index", action:"watch", pyq:"yes" },
+  { num:5, title:"Losses & Dispersion in Optical Fibers", unit:"U3", topics:"Absorption, scattering (Rayleigh), bending loss, modal dispersion, material dispersion", action:"watch", pyq:"yes" },
+  { num:6, title:"Requirements of Optical Sources", unit:"U4", topics:"Source requirements, power coupling, source-to-fiber power launching", action:"watch", pyq:"yes" },
+  { num:7, title:"LEDs in Fiber Optic Communication", unit:"U4", topics:"SLED, ELED, DH LED structure, merits/demerits, LED modulation", action:"watch", pyq:"yes" },
+  { num:8, title:"LASERs", unit:"U4", topics:"Stimulated emission, He-Ne laser, injection laser, frequency chirp, noise, threshold current, reliability", action:"watch", pyq:"yes" },
+  { num:9, title:"Quick Revision — Optical Fibers (Telecom)", unit:"U2/U3", topics:"Full revision: fiber types, propagation, losses, dispersion", action:"1.5x", pyq:"yes" },
+  { num:10, title:"Quick Revision — Optical Sources", unit:"U4", topics:"LED + LASER full revision, power characteristics", action:"1.5x", pyq:"yes" },
+  { num:11, title:"Photodetectors", unit:"U4", topics:"PIN intro, APD intro, noise types in detectors, detector comparison", action:"watch", pyq:"yes" },
+  { num:12, title:"PIN Photodiode", unit:"U4", topics:"PIN structure, quantum efficiency (η), responsivity (R), solved problems", action:"watch", pyq:"yes" },
+  { num:13, title:"Avalanche Photodiode (APD)", unit:"U4", topics:"APD structure, multiplication factor M, APD vs PIN comparison", action:"watch", pyq:"yes" },
+  { num:14, title:"Phototransistor", unit:"U4", topics:"Phototransistor working principle", action:"2x", pyq:"partial" },
+  { num:15, title:"Link Power Budget", unit:"U4", topics:"Power budget, power penalties, connector loss, BER, quantum limit", action:"watch", pyq:"yes" },
+  { num:16, title:"Rise Time Budget", unit:"U4", topics:"Rise time budgeting, system bandwidth, rise time calculation", action:"watch", pyq:"yes" },
+  { num:17, title:"WDM Network", unit:"U6", topics:"WDM principle, DWDM, CWDM, ITU standards (193.1 THz, 100 GHz)", action:"watch", pyq:"yes" },
+  { num:18, title:"Optical Isolator, Circulator & Coupler", unit:"U5", topics:"Passive components: isolator, circulator, star coupler, N×N coupler intro", action:"watch", pyq:"partial" },
+  { num:19, title:"Fiber Gratings & Optical Amplifiers", unit:"U5", topics:"Fiber Bragg Grating (FBG), EDFA structure & working, Raman amplifier", action:"watch", pyq:"yes" },
+  { num:20, title:"Optical Networks", unit:"U6", topics:"Optical network architectures, topologies", action:"2x", pyq:"partial" },
+  { num:21, title:"FDDI and SONET", unit:"U6", topics:"FDDI standard, SONET/SDH basics", action:"skip", pyq:"no" },
+  { num:22, title:"Fiber to the X (FTTx)", unit:"U6", topics:"FTTH, FTTB, FTTC deployment models", action:"skip", pyq:"no" },
+  { num:23, title:"Active & Passive Optical Networks", unit:"U6", topics:"PON, AON architectures, OLT, ONT", action:"skip", pyq:"no" },
+  { num:24, title:"Optical Fiber Test Equipments", unit:"U3", topics:"OTDR working principle, fault location, test equipment overview", action:"watch", pyq:"yes" },
+  { num:25, title:"Fiber Attenuation Measurement", unit:"U3", topics:"Cutback method, insertion loss method, OTDR-based measurement", action:"watch", pyq:"yes" },
+  { num:26, title:"Quick Revision — Photodetectors", unit:"U4", topics:"Full photodetector revision: PIN, APD, noise, responsivity problems", action:"1.5x", pyq:"yes" },
+  { num:27, title:"Measurement of Dispersion, NA & Eye Pattern", unit:"U3", topics:"Dispersion measurement setup, NA measurement technique, eye diagram", action:"watch", pyq:"yes" },
+  { num:28, title:"Quick Revision — Fiber Optic Link Design", unit:"U4", topics:"Complete link design: power budget + rise time budget + BER", action:"1.5x", pyq:"yes" },
+  { num:29, title:"Quick Revision — Optical Networks (Unit 5)", unit:"U5/U6", topics:"EDFA, Raman, optical switches, WDM full revision", action:"1.5x", pyq:"yes" },
+  { num:30, title:"Quick Revision — Optical Fiber Measurements", unit:"U3/U6", topics:"OTDR, attenuation, dispersion, NA measurement complete revision", action:"1.5x", pyq:"yes" },
+];
+
+const coverageData = [
+  {
+    unit: "Unit 2", sub: "Fiber Basics & Propagation", pct: 75, cls: "cov-u2",
+    topics: [
+      { label: "TIR, NA, Acceptance Angle", status: "ok" },
+      { label: "V Number & Fiber Types", status: "ok" },
+      { label: "Numerical Problems (NA, V, modes)", status: "ok" },
+      { label: "Ray Model / Cylindrical Dielectric Rod", status: "partial" },
+      { label: "Wave Model / Vector Nature of Light", status: "partial" },
+      { label: "Modal Analysis (Wave Equation, Bessel)", status: "miss" },
+      { label: "Evanescent Field", status: "miss" },
+    ]
+  },
+  {
+    unit: "Unit 3", sub: "Signal Degradation & Measurements", pct: 80, cls: "cov-u3",
+    topics: [
+      { label: "Attenuation Types (absorption, scattering, bending)", status: "ok" },
+      { label: "Dispersion (modal, material, chromatic)", status: "ok" },
+      { label: "OTDR Working Principle", status: "ok" },
+      { label: "Cutback / Attenuation Measurement", status: "ok" },
+      { label: "Splices & Connectors", status: "partial" },
+      { label: "Dispersion Shifted / Flattened Cable", status: "miss" },
+      { label: "Fiber Fabrication & Materials", status: "miss" },
+    ]
+  },
+  {
+    unit: "Unit 4", sub: "Sources, Detectors & Link Design", pct: 95, cls: "cov-u4",
+    topics: [
+      { label: "LED (SLED, ELED, DH) + Merits/Demerits", status: "ok" },
+      { label: "LASER Characteristics (chirp, noise, threshold)", status: "ok" },
+      { label: "He-Ne Laser", status: "ok" },
+      { label: "PIN Photodiode + Numericals", status: "ok" },
+      { label: "APD + Multiplication Factor", status: "ok" },
+      { label: "Power Budget + Quantum Limit", status: "ok" },
+      { label: "Rise Time Budget", status: "ok" },
+    ]
+  },
+  {
+    unit: "Unit 5", sub: "Switches & Amplifiers", pct: 65, cls: "cov-u5",
+    topics: [
+      { label: "EDFA Structure & Working", status: "ok" },
+      { label: "Raman Amplifier", status: "ok" },
+      { label: "EDFA vs Raman Comparison", status: "ok" },
+      { label: "Star Coupler / N×N Coupler", status: "partial" },
+      { label: "Coupled Mode Analysis (Directional Couplers)", status: "miss" },
+      { label: "Electro-optic Switches", status: "miss" },
+    ]
+  },
+  {
+    unit: "Unit 6", sub: "WDM & Nonlinear Effects", pct: 50, cls: "cov-u6",
+    topics: [
+      { label: "WDM Principle & Working", status: "ok" },
+      { label: "DWDM & CWDM (ITU Standards)", status: "ok" },
+      { label: "Self-Phase Modulation (SPM)", status: "miss" },
+      { label: "Group Velocity Dispersion (GVD)", status: "miss" },
+      { label: "Kerr Non-linearity", status: "miss" },
+      { label: "Nonlinear Scattering (SBS, SRS)", status: "miss" },
+      { label: "Soliton Communication", status: "miss" },
+    ]
+  },
+];
+
+const gaps = [
+  {
+    sev: "critical", title: "Modal Analysis of Step-Index Fiber",
+    pyq: "2022 C5 · 2023 B4 · 2024 B4 — appeared in 3 of 4 years",
+    action: "Search: 'modal analysis step index fiber wave equation RTU' on YouTube. 1 video needed."
+  },
+  {
+    sev: "critical", title: "Self-Phase Modulation (SPM)",
+    pyq: "2022 B2 · 2023 B5 — appears as 8-mark question",
+    action: "Search: 'self phase modulation optical fiber' — simple concept, 10 min video."
+  },
+  {
+    sev: "critical", title: "Group Velocity Dispersion (GVD)",
+    pyq: "2022 B2 · 2023 B5 — always paired with SPM question",
+    action: "Usually covered in same video as SPM. 1 search covers both."
+  },
+  {
+    sev: "critical", title: "Kerr Non-linearity",
+    pyq: "2023 C5 · 2025 C5 — 15-mark Part C question, high stakes",
+    action: "Search: 'Kerr effect optical fiber nonlinearity'. Formula: n = n₀ + n₂I"
+  },
+  {
+    sev: "high", title: "Fiber Fabrication & Materials",
+    pyq: "2022 C5 · 2024 A1 — Part A 2-marker + Part C 15-marker",
+    action: "Search: 'optical fiber fabrication MCVD PCVD OVD process'. 1 short video."
+  },
+  {
+    sev: "high", title: "Coupled Mode Analysis of Directional Couplers",
+    pyq: "2022 B3 — 8-mark question in Part B",
+    action: "Video 18 covers coupler basics. Read coupled mode theory from any notes. Medium priority."
+  },
+  {
+    sev: "high", title: "Dispersion Shifted & Flattened Cable",
+    pyq: "2023 B2 — compare DSF vs DFF, 8 marks",
+    action: "Diagram-based concept. Search: 'dispersion shifted flattened cable optical fiber'. 10 mins."
+  },
+  {
+    sev: "high", title: "Evanescent Field",
+    pyq: "2025 A2 — 2-mark short answer",
+    action: "2-paragraph concept. Read any OFC textbook or Wikipedia. No video needed."
+  },
+  {
+    sev: "high", title: "Electric Field Equations (Wave Propagation)",
+    pyq: "2023 B4 · 2024 B4 — derivation in Part B",
+    action: "Search: 'electric field equations homogeneous inhomogeneous medium optical fiber'. Tough topic."
+  },
+  {
+    sev: "high", title: "Double Heterostructure LED (Homo/Hetero Junction)",
+    pyq: "2024 C5 — 15-mark Part C question",
+    action: "Video 7 covers partially. Search: 'double heterostructure LED edge emitting' for full diagram."
+  },
+];
+
+const pyqData = [
+  // 2022
+  { year:"2022", part:"A", question:"What is Dispersion?", unit:"U3", video:"V5", freq:1, status:"ok" },
+  { year:"2022", part:"A", question:"What is splicing in fiber?", unit:"U3", video:"V25", freq:2, status:"ok" },
+  { year:"2022", part:"A", question:"Responsivity of photodiode", unit:"U4", video:"V12", freq:4, status:"ok" },
+  { year:"2022", part:"A", question:"Explain Quantum Limit", unit:"U4", video:"V15", freq:3, status:"ok" },
+  { year:"2022", part:"A", question:"Object of optical amplifiers", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2022", part:"A", question:"Applications of LASER", unit:"U4", video:"V8", freq:2, status:"ok" },
+  { year:"2022", part:"A", question:"Graded index fiber with parabolic profile", unit:"U2", video:"V3", freq:2, status:"ok" },
+  { year:"2022", part:"A", question:"Power penalties on optical sources", unit:"U4", video:"V15", freq:2, status:"ok" },
+  { year:"2022", part:"A", question:"Signal degradation on optical fiber", unit:"U3", video:"V5", freq:3, status:"ok" },
+  { year:"2022", part:"A", question:"Merit and demerit of LED structure", unit:"U4", video:"V7", freq:4, status:"ok" },
+  { year:"2022", part:"B", question:"Characteristics of LASER (noise, reliability, chirp, threshold)", unit:"U4", video:"V8", freq:3, status:"ok" },
+  { year:"2022", part:"B", question:"SPM and Group Velocity Dispersion", unit:"U6", video:"—", freq:2, status:"miss" },
+  { year:"2022", part:"B", question:"Coupled mode analysis of directional couplers", unit:"U5", video:"V18 (partial)", freq:1, status:"partial" },
+  { year:"2022", part:"B", question:"Types of optical fibers + propagation in cylindrical rod", unit:"U2", video:"V3, V2", freq:3, status:"ok" },
+  { year:"2022", part:"B", question:"APD structure, advantages over PIN diode", unit:"U4", video:"V13", freq:3, status:"ok" },
+  { year:"2022", part:"B", question:"Raman Amplifier with diagram", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2022", part:"B", question:"Signal degradation — dispersion + attenuation", unit:"U3", video:"V5", freq:4, status:"ok" },
+  { year:"2022", part:"C", question:"WDM vs DWDM", unit:"U6", video:"V17", freq:4, status:"ok" },
+  { year:"2022", part:"C", question:"OTDR — fault location with diagram", unit:"U3", video:"V24", freq:4, status:"ok" },
+  { year:"2022", part:"C", question:"LED structure — merits & demerits", unit:"U4", video:"V7", freq:4, status:"ok" },
+  { year:"2022", part:"C", question:"EDFA with neat diagram", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2022", part:"C", question:"Fiber fabrication materials + Modal analysis step-index", unit:"U2/U3", video:"—", freq:2, status:"miss" },
+  // 2023 BACK
+  { year:"2023", part:"A", question:"Step index and Graded index fiber (define)", unit:"U2", video:"V3", freq:4, status:"ok" },
+  { year:"2023", part:"A", question:"Reasons of signal degradation", unit:"U3", video:"V5", freq:3, status:"ok" },
+  { year:"2023", part:"A", question:"Quantum efficiency and responsivity of p-n diode", unit:"U4", video:"V12", freq:4, status:"ok" },
+  { year:"2023", part:"A", question:"Bending loss", unit:"U3", video:"V5", freq:3, status:"ok" },
+  { year:"2023", part:"A", question:"Three working principles of LASER", unit:"U4", video:"V8", freq:3, status:"ok" },
+  { year:"2023", part:"A", question:"BER 10⁻⁹ — quantum limit numerical", unit:"U4", video:"V15", freq:2, status:"ok" },
+  { year:"2023", part:"A", question:"Step index fiber: NA + clad RI numerical (n₁=1.45, Δ=0.01)", unit:"U2", video:"V4", freq:3, status:"ok" },
+  { year:"2023", part:"A", question:"Snell's law for TIR", unit:"U2", video:"V2", freq:3, status:"ok" },
+  { year:"2023", part:"A", question:"Purpose of optical switches", unit:"U5", video:"V18", freq:3, status:"ok" },
+  { year:"2023", part:"A", question:"Non-linear effects of optical fiber link", unit:"U6", video:"—", freq:3, status:"miss" },
+  { year:"2023", part:"B", question:"OTDR working principle", unit:"U3", video:"V24", freq:4, status:"ok" },
+  { year:"2023", part:"B", question:"He-Ne Laser with diagram", unit:"U4", video:"V8", freq:3, status:"ok" },
+  { year:"2023", part:"B", question:"N×N star coupler — find max n and N for 30 dB budget", unit:"U5", video:"V18 (partial)", freq:2, status:"partial" },
+  { year:"2023", part:"B", question:"Electric field equations (homogeneous + inhomogeneous)", unit:"U2", video:"—", freq:2, status:"miss" },
+  { year:"2023", part:"B", question:"SPM and group velocity concept", unit:"U6", video:"—", freq:2, status:"miss" },
+  { year:"2023", part:"B", question:"Attenuation — types + measurement techniques", unit:"U3", video:"V5, V25", freq:4, status:"ok" },
+  { year:"2023", part:"B", question:"15 km fiber link power budget numerical", unit:"U4", video:"V15", freq:3, status:"ok" },
+  { year:"2023", part:"C", question:"EDF amplifier vs Raman Amplifier", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2023", part:"C", question:"Fiber attenuation measurement setup", unit:"U3", video:"V25", freq:3, status:"ok" },
+  { year:"2023", part:"C", question:"WDM need + CWDM and DWDM in detail", unit:"U6", video:"V17", freq:4, status:"ok" },
+  { year:"2023", part:"C", question:"Modal analysis — wave propagation in step index fiber (cylindrical)", unit:"U2", video:"—", freq:3, status:"miss" },
+  { year:"2023", part:"C", question:"SLED and ELED structure — which LED is better?", unit:"U4", video:"V7", freq:3, status:"ok" },
+  // 2023 MAIN
+  { year:"2023", part:"B", question:"Dispersion — shifted vs flattened cable comparison", unit:"U3", video:"—", freq:1, status:"miss" },
+  { year:"2023", part:"B", question:"Silica fiber numerical: critical angle, NA, acceptance angle", unit:"U2", video:"V4", freq:4, status:"ok" },
+  { year:"2023", part:"B", question:"Fiber Raman amplifier with diagram", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2023", part:"B", question:"WDM vs DWDM — ITU base freq and channel spacing", unit:"U6", video:"V17", freq:4, status:"ok" },
+  { year:"2023", part:"C", question:"Kerr non-linearity and other non-linear effects", unit:"U6", video:"—", freq:2, status:"miss" },
+  { year:"2023", part:"C", question:"Photodiode numerical: quantum efficiency + responsivity", unit:"U4", video:"V12", freq:4, status:"ok" },
+  // 2024 BACK
+  { year:"2024", part:"B", question:"OTDR working principle", unit:"U3", video:"V24", freq:4, status:"ok" },
+  { year:"2024", part:"B", question:"He-Ne Laser with diagram", unit:"U4", video:"V8", freq:3, status:"ok" },
+  { year:"2024", part:"B", question:"Star coupler numerical (N×N, 30 dB budget)", unit:"U5", video:"V18 (partial)", freq:2, status:"partial" },
+  { year:"2024", part:"B", question:"Electric field equations (homogeneous + inhomogeneous)", unit:"U2", video:"—", freq:2, status:"miss" },
+  { year:"2024", part:"B", question:"15 km fiber link power budget numerical", unit:"U4", video:"V15", freq:3, status:"ok" },
+  { year:"2024", part:"C", question:"EDF amplifier vs Raman — how different?", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2024", part:"C", question:"Fiber attenuation measurement setup", unit:"U3", video:"V25", freq:3, status:"ok" },
+  { year:"2024", part:"C", question:"WDM modulation — CWDM & DWDM in detail", unit:"U6", video:"V17", freq:4, status:"ok" },
+  { year:"2024", part:"C", question:"Modal analysis — cylindrical coordinate step index fiber", unit:"U2", video:"—", freq:3, status:"miss" },
+  { year:"2024", part:"C", question:"SLED and ELED — which LED is better?", unit:"U4", video:"V7", freq:3, status:"ok" },
+  // 2024 MAIN
+  { year:"2024", part:"A", question:"Materials for optical fiber fabrication", unit:"U3", video:"—", freq:2, status:"miss" },
+  { year:"2024", part:"A", question:"Pulse broadening in optical fiber", unit:"U3", video:"V5", freq:2, status:"ok" },
+  { year:"2024", part:"B", question:"Different modes of fiber + refractive index profiles", unit:"U2", video:"V3, V9", freq:3, status:"ok" },
+  { year:"2024", part:"B", question:"Step index fiber — normalized frequency numerical", unit:"U2", video:"V4", freq:3, status:"ok" },
+  { year:"2024", part:"B", question:"APD multiplication factor numerical", unit:"U4", video:"V13", freq:3, status:"ok" },
+  { year:"2024", part:"B", question:"DWDM schematic diagram and working", unit:"U6", video:"V17", freq:3, status:"ok" },
+  { year:"2024", part:"B", question:"Factors contributing dispersion + types of dispersion", unit:"U3", video:"V5", freq:3, status:"ok" },
+  { year:"2024", part:"B", question:"EDFA working principle", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2024", part:"C", question:"Attenuation numerical: 5 mW → 4 mW over 10 km, then 80 km", unit:"U3", video:"V15", freq:2, status:"ok" },
+  { year:"2024", part:"C", question:"LASER threshold + necessary conditions for LASER action", unit:"U4", video:"V8", freq:2, status:"ok" },
+  { year:"2024", part:"C", question:"Splicing: Spring Groove, Fusion Splice, Lansing Schemes", unit:"U3", video:"V25 (partial)", freq:1, status:"partial" },
+  { year:"2024", part:"C", question:"OTDR — field measurement + merits", unit:"U3", video:"V24", freq:4, status:"ok" },
+  { year:"2024", part:"C", question:"Hetero-junction + Double Heterostructure edge-emitting LED", unit:"U4", video:"V7 (partial)", freq:1, status:"partial" },
+  // 2025
+  { year:"2025", part:"A", question:"Working principle of optical fiber communication", unit:"U1", video:"V1", freq:3, status:"ok" },
+  { year:"2025", part:"A", question:"Evanescent field in OFC", unit:"U2", video:"—", freq:1, status:"miss" },
+  { year:"2025", part:"A", question:"Graded index profile preferred type", unit:"U2", video:"V3", freq:3, status:"ok" },
+  { year:"2025", part:"A", question:"Applications of splices in OFC", unit:"U3", video:"V25", freq:2, status:"ok" },
+  { year:"2025", part:"A", question:"Single vs multimode fibers — differentiate", unit:"U2", video:"V3", freq:4, status:"ok" },
+  { year:"2025", part:"A", question:"Need of optical amplifier", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2025", part:"A", question:"Semiconductor material for FOC components", unit:"U4", video:"V6 (partial)", freq:1, status:"partial" },
+  { year:"2025", part:"A", question:"Misalignment types in fiber jointing", unit:"U3", video:"V25", freq:2, status:"ok" },
+  { year:"2025", part:"A", question:"Noise types in optical detectors", unit:"U4", video:"V11", freq:3, status:"ok" },
+  { year:"2025", part:"A", question:"Power characteristics of LED", unit:"U4", video:"V7", freq:2, status:"ok" },
+  { year:"2025", part:"B", question:"OFC system block diagram — labelled", unit:"U1", video:"V1", freq:3, status:"ok" },
+  { year:"2025", part:"B", question:"Multimode step index fiber normalized freq + guided modes", unit:"U2", video:"V3, V4", freq:3, status:"ok" },
+  { year:"2025", part:"B", question:"LED structure — merits & demerits", unit:"U4", video:"V7", freq:4, status:"ok" },
+  { year:"2025", part:"B", question:"Splices and connectors — types with diagrams", unit:"U3", video:"V25", freq:2, status:"ok" },
+  { year:"2025", part:"B", question:"Fiber Raman amplifier with diagram", unit:"U5", video:"V19", freq:4, status:"ok" },
+  { year:"2025", part:"B", question:"WDM vs DWDM — ITU base freq and channel spacing", unit:"U6", video:"V17", freq:4, status:"ok" },
+  { year:"2025", part:"B", question:"Rise time budgeting in optical networks", unit:"U4", video:"V16, V28", freq:1, status:"ok" },
+  { year:"2025", part:"C", question:"Injection LASER characteristics (chirp, noise, reliability, threshold)", unit:"U4", video:"V8", freq:3, status:"ok" },
+  { year:"2025", part:"C", question:"Photodiode numerical: η, R at 0.90 μm (5×10¹⁰ → 2×10¹⁰)", unit:"U4", video:"V12", freq:4, status:"ok" },
+  { year:"2025", part:"C", question:"DH LED — recombination lifetime + power calculation", unit:"U4", video:"V7 (partial)", freq:1, status:"partial" },
+  { year:"2025", part:"C", question:"OTDR — fault location with neat graph", unit:"U3", video:"V24", freq:4, status:"ok" },
+  { year:"2025", part:"C", question:"Kerr non-linearity + other non-linear effects", unit:"U6", video:"—", freq:2, status:"miss" },
+];
+
+const priorityData = [
+  {
+    level: "⭐⭐⭐ High Priority", color: "#F5A623",
+    topics: [
+      { name: "OTDR — Working Principle & Fault Location", freq: "4/4 years", video: "V24, V30" },
+      { name: "WDM vs DWDM (with ITU standards)", freq: "4/4 years", video: "V17" },
+      { name: "LED Structure + Merits/Demerits", freq: "4/4 years", video: "V7, V10" },
+      { name: "EDFA Working Principle", freq: "4/4 years", video: "V19, V29" },
+      { name: "Raman Amplifier", freq: "4/4 years", video: "V19" },
+      { name: "Quantum Efficiency + Responsivity (numerical)", freq: "4/4 years", video: "V12, V26" },
+      { name: "NA, Acceptance Angle, V Number (numerical)", freq: "4/4 years", video: "V2, V4" },
+      { name: "APD Structure + Multiplication Factor", freq: "3/4 years", video: "V13" },
+      { name: "Modal Analysis of Step-Index Fiber", freq: "3/4 years (❌ not in playlist)", video: "— Study separately" },
+      { name: "Signal Degradation (Attenuation + Dispersion)", freq: "4/4 years", video: "V5" },
+      { name: "Power Budget Numerical (15 km link type)", freq: "3/4 years", video: "V15, V28" },
+      { name: "LASER Characteristics (chirp, noise, threshold)", freq: "3/4 years", video: "V8" },
+    ]
+  },
+  {
+    level: "⭐⭐ Medium Priority", color: "#60A5FA",
+    topics: [
+      { name: "He-Ne Laser with Diagram", freq: "2023, 2024", video: "V8" },
+      { name: "SPM + Group Velocity Dispersion", freq: "2022, 2023 (❌ not in playlist)", video: "— Study separately" },
+      { name: "Attenuation Measurement (Cutback Method)", freq: "2023, 2024", video: "V25" },
+      { name: "Kerr Non-linearity", freq: "2023, 2025 (❌ not in playlist)", video: "— Study separately" },
+      { name: "Rise Time Budget", freq: "2025", video: "V16, V28" },
+      { name: "Fiber Fabrication + Materials", freq: "2022, 2024", video: "— Study separately" },
+      { name: "Step Index vs Graded Index (define)", freq: "2023, 2024", video: "V3" },
+      { name: "Snell's Law / TIR", freq: "2023, 2024", video: "V2" },
+      { name: "Splices vs Connectors", freq: "2023, 2024, 2025", video: "V25" },
+      { name: "N×N Star Coupler Numerical", freq: "2023, 2024", video: "V18 (partial)" },
+    ]
+  },
+  {
+    level: "⭐ Low Priority", color: "#888",
+    topics: [
+      { name: "Phototransistor Working", freq: "Rarely asked", video: "V14" },
+      { name: "FDDI / SONET", freq: "Not in PYQs", video: "V21 (Skip)" },
+      { name: "FTTx", freq: "Not in PYQs", video: "V22 (Skip)" },
+      { name: "PON / AON", freq: "Not in PYQs", video: "V23 (Skip)" },
+      { name: "Electro-optic Switches", freq: "Rarely asked", video: "Not covered" },
+      { name: "Fiber Isolator / Circulator", freq: "Rarely asked", video: "V18" },
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
+function unitBadge(unit) {
+  const cls = unit.includes("U2") ? "u2" : unit.includes("U3") ? "u3" : unit.includes("U4") ? "u4" : unit.includes("U5") ? "u5" : unit.includes("U6") ? "u6" : "u1";
+  return `<span class="badge badge-${cls}">${unit}</span>`;
+}
+
+function actionBadge(action) {
+  const map = { watch: ["badge-watch","▶ Watch"], "1.5x": ["badge-1x5","⚡ 1.5x"], "2x": ["badge-2x","⏩ 2x Speed"], skip: ["badge-skip","✕ Skip"] };
+  const [cls, label] = map[action] || ["",""];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function pyqBadge(pyq) {
+  if (pyq === "yes") return `<span class="badge badge-pyq-yes">✓ Yes</span>`;
+  if (pyq === "partial") return `<span class="badge badge-pyq-partial">~ Partial</span>`;
+  return `<span class="badge badge-pyq-no">— No</span>`;
+}
+
+function statusBadge(status) {
+  if (status === "ok") return `<span class="badge badge-pyq-yes">✅ Covered</span>`;
+  if (status === "partial") return `<span class="badge badge-pyq-partial">⚠ Partial</span>`;
+  return `<span class="badge badge-pyq-no" style="color:var(--red);border-color:rgba(255,69,69,0.3);background:var(--red-dim)">❌ Not Covered</span>`;
+}
+
+// Render video table
+const videoBody = document.getElementById("videoBody");
+videos.forEach(v => {
+  const tr = document.createElement("tr");
+  const saved = localStorage.getItem ? (localStorage.getItem(`foc_v${v.num}`) === "1" ? "checked" : "") : "";
+  tr.innerHTML = `
+    <td class="vid-num">${v.num}</td>
+    <td><div class="cb-wrap"><input type="checkbox" id="cb${v.num}" ${saved} onchange="saveCheck(${v.num},this)"></div></td>
+    <td class="vid-title">${v.title}</td>
+    <td>${unitBadge(v.unit)}</td>
+    <td class="vid-topics">${v.topics}</td>
+    <td>${actionBadge(v.action)}</td>
+    <td>${pyqBadge(v.pyq)}</td>
+  `;
+  videoBody.appendChild(tr);
+});
+
+function saveCheck(num, el) {
+  try { localStorage.setItem(`foc_v${num}`, el.checked ? "1" : "0"); } catch(e) {}
+}
+
+// Render coverage
+const covGrid = document.getElementById("coverageGrid");
+coverageData.forEach(u => {
+  const dotMap = { ok: "dot-ok", partial: "dot-partial", miss: "dot-miss" };
+  const topicsHTML = u.topics.map(t => `
+    <div class="cov-topic">
+      <div class="cov-dot ${dotMap[t.status]}"></div>
+      <div class="cov-topic-name">${t.label}</div>
+    </div>
+  `).join("");
+
+  const card = document.createElement("div");
+  card.className = `coverage-card ${u.cls}`;
+  card.innerHTML = `
+    <div class="cov-header">
+      <div>
+        <div class="cov-title">${u.unit}</div>
+        <div style="font-size:10px;color:var(--text-faint);margin-top:2px">${u.sub}</div>
+      </div>
+      <div class="cov-pct" style="color:${u.pct >= 80 ? 'var(--green)' : u.pct >= 60 ? 'var(--yellow)' : 'var(--red)'}">${u.pct}%</div>
+    </div>
+    <div class="bar-track"><div class="bar-fill" data-width="${u.pct}"></div></div>
+    <div class="cov-topics">${topicsHTML}</div>
+  `;
+  covGrid.appendChild(card);
+});
+
+// Render gaps
+const gapGrid = document.getElementById("gapGrid");
+gaps.forEach(g => {
+  const card = document.createElement("div");
+  card.className = `gap-card ${g.sev}`;
+  card.innerHTML = `
+    <div class="gap-tag ${g.sev}">${g.sev === 'critical' ? '🔴 CRITICAL' : '🟡 HIGH PRIORITY'}</div>
+    <div class="gap-title">${g.title}</div>
+    <div class="gap-pyq">📋 PYQ: ${g.pyq}</div>
+    <div class="gap-action"><span class="gap-action-icon">💡</span><span>${g.action}</span></div>
+  `;
+  gapGrid.appendChild(card);
+});
+
+// Render PYQ table
+const pyqBody = document.getElementById("pyqBody");
+let allPYQ = [...pyqData];
+
+function renderPYQ(data) {
+  pyqBody.innerHTML = "";
+  const freqMap = {};
+  pyqData.forEach(p => {
+    const key = p.question;
+    freqMap[key] = (freqMap[key] || 0) + 1;
+  });
+
+  data.forEach(p => {
+    const f = freqMap[p.question] || 1;
+    const stars = f >= 3 ? "👑 " + f + " years" : f === 2 ? "🔥 " + f + " years" : "· 1 year";
+    const tr = document.createElement("tr");
+    tr.dataset.year = p.year;
+    tr.dataset.status = p.status;
+    tr.dataset.freq = f;
+    tr.innerHTML = `
+      <td><span class="badge" style="background:rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border)">${p.year}</span></td>
+      <td><span style="color:var(--amber);font-size:11px">Part ${p.part}</span></td>
+      <td style="max-width:320px;line-height:1.5;font-size:12px">${p.question}</td>
+      <td>${unitBadge(p.unit)}</td>
+      <td style="color:var(--text-dim);font-size:11px">${p.video}</td>
+      <td style="white-space:nowrap;font-size:11px">${stars}</td>
+      <td>${statusBadge(p.status)}</td>
+    `;
+    pyqBody.appendChild(tr);
+  });
+}
+
+renderPYQ(allPYQ);
+
+function filterPYQ(btn, filter) {
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  let filtered = allPYQ;
+  if (filter !== "all") {
+    if (filter === "repeat") filtered = allPYQ.filter(p => {
+      const f = allPYQ.filter(q => q.question === p.question).length;
+      return f >= 2;
+    });
+    else if (filter === "missing") filtered = allPYQ.filter(p => p.status === "miss");
+    else filtered = allPYQ.filter(p => p.year === filter);
+  }
+  renderPYQ(filtered);
+}
+
+// Render priority
+const priContent = document.getElementById("priorityContent");
+priorityData.forEach(p => {
+  const sec = document.createElement("div");
+  sec.className = "priority-section";
+  const cards = p.topics.map(t => `
+    <div class="p-card">
+      <div class="p-topic">${t.name}</div>
+      <div class="p-meta">
+        <span class="badge" style="background:rgba(255,255,255,0.04);color:var(--text-faint);border:1px solid var(--border);font-size:9px">${t.freq}</span>
+        <span class="badge badge-unit" style="font-size:9px">${t.video}</span>
+      </div>
+    </div>
+  `).join("");
+
+  sec.innerHTML = `
+    <div class="priority-label">
+      <div class="priority-label-text" style="color:${p.color}">${p.level}</div>
+      <div class="priority-line"></div>
+    </div>
+    <div class="p-cards">${cards}</div>
+  `;
+  priContent.appendChild(sec);
+});
+
+// ═══════════════════════════════════════════════════════
+// INTERSECTION OBSERVER — reveal animations
+// ═══════════════════════════════════════════════════════
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // animate bars
+      e.target.querySelectorAll('.bar-fill[data-width], .overall-fill[data-width]').forEach(bar => {
+        setTimeout(() => { bar.style.width = bar.dataset.width + '%'; }, 200);
+      });
+    }
+  });
+}, { threshold: 0.08 });
+revealEls.forEach(el => observer.observe(el));
+
+// trigger overall bar
+const overallFill = document.querySelector('.overall-fill');
+if (overallFill) {
+  const obv = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      setTimeout(() => { overallFill.style.width = '72%'; }, 300);
+      obv.disconnect();
+    }
+  }, { threshold: 0.1 });
+  obv.observe(overallFill);
+}
+
+// scroll top button
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
+});
+</script>
+</body>
+</html>
