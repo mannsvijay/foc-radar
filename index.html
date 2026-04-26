@@ -1092,8 +1092,8 @@
     <button class="filter-btn" data-filter="2023" onclick="filterPYQ(this,'2023')">2023</button>
     <button class="filter-btn" data-filter="2024" onclick="filterPYQ(this,'2024')">2024</button>
     <button class="filter-btn" data-filter="2025" onclick="filterPYQ(this,'2025')">2025</button>
-    <button class="filter-btn" data-filter="repeat" onclick="filterPYQ(this,'repeat')">👑 Repeat</button>
-    <button class="filter-btn" data-filter="missing" onclick="filterPYQ(this,'missing')">❌ Not Covered</button>
+    <button class="filter-btn" data-filter="repeat" onclick="filterPYQ(this,'repeat')">Repeat</button>
+    <button class="filter-btn" data-filter="missing" onclick="filterPYQ(this,'missing')">Not Covered</button>
   </div>
 
   <div class="table-wrap">
@@ -1158,7 +1158,7 @@
             <div class="social-platform">GitHub</div>
             <div class="social-handle">mannsvijay</div>
           </div>
-          <div class="social-arrow">→</div>
+          <div class="social-arrow">-></div>
         </a>
         <a href="https://www.linkedin.com/in/mannsvijay/" target="_blank" rel="noopener" class="social-link">
           <div class="social-icon icon-li">
@@ -1168,7 +1168,7 @@
             <div class="social-platform">LinkedIn</div>
             <div class="social-handle">mannsvijay</div>
           </div>
-          <div class="social-arrow">→</div>
+          <div class="social-arrow">-></div>
         </a>
         <a href="https://leetcode.com/u/mannsvijay/" target="_blank" rel="noopener" class="social-link">
           <div class="social-icon icon-lc">
@@ -1178,7 +1178,7 @@
             <div class="social-platform">LeetCode</div>
             <div class="social-handle">mannsvijay</div>
           </div>
-          <div class="social-arrow">→</div>
+          <div class="social-arrow">-></div>
         </a>
       </div>
     </div>
@@ -1195,11 +1195,11 @@
           <label class="form-label">Type</label>
           <select class="form-select" id="ftype">
             <option value="">— Select —</option>
-            <option value="suggest">📌 Topic Suggestion</option>
-            <option value="correction">⚠️ PYQ Correction</option>
-            <option value="gap">❌ Gap Report</option>
-            <option value="collab">🤝 Collab / Connect</option>
-            <option value="hi">👋 Just Saying Hi</option>
+            <option value="suggest">Topic Suggestion</option>
+            <option value="correction">PYQ Correction</option>
+            <option value="gap">Gap Report</option>
+            <option value="collab">Collab / Connect</option>
+            <option value="hi"> Just Saying Hi</option>
           </select>
         </div>
       </div>
@@ -1211,9 +1211,9 @@
         <label class="form-label">Your Contact (optional)</label>
         <input class="form-input" type="text" id="fcontact" placeholder="email / LinkedIn / GitHub — however you prefer">
       </div>
-      <button class="btn-submit" onclick="submitForm()">Send Message →</button>
+      <button class="btn-submit" onclick="submitForm()">Send Message</button>
       <div class="form-success" id="formSuccess">
-        ✓ Got it. Will check this out.<br>
+        Got it. Will check this out.<br>
         <span style="font-size:11px;font-weight:400;color:var(--text-dim);font-family:'JetBrains Mono',monospace">— Manan</span>
       </div>
     </div>
@@ -1236,7 +1236,7 @@
   </div>
 </footer>
 
-<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">^</button>
 
 <script>
 // ═══════════════════════════════════════════════════════
@@ -1497,7 +1497,7 @@ const pyqData = [
 
 const priorityData = [
   {
-    level: "⭐⭐⭐ High Priority", color: "#F5A623",
+    level: "High Priority", color: "#F5A623",
     topics: [
       { name: "OTDR — Working Principle & Fault Location", freq: "4/4 years", video: "V24, V30" },
       { name: "WDM vs DWDM (with ITU standards)", freq: "4/4 years", video: "V17" },
@@ -1507,19 +1507,19 @@ const priorityData = [
       { name: "Quantum Efficiency + Responsivity (numerical)", freq: "4/4 years", video: "V12, V26" },
       { name: "NA, Acceptance Angle, V Number (numerical)", freq: "4/4 years", video: "V2, V4" },
       { name: "APD Structure + Multiplication Factor", freq: "3/4 years", video: "V13" },
-      { name: "Modal Analysis of Step-Index Fiber", freq: "3/4 years (❌ not in playlist)", video: "— Study separately" },
+      { name: "Modal Analysis of Step-Index Fiber", freq: "3/4 years (not in playlist)", video: "— Study separately" },
       { name: "Signal Degradation (Attenuation + Dispersion)", freq: "4/4 years", video: "V5" },
       { name: "Power Budget Numerical (15 km link type)", freq: "3/4 years", video: "V15, V28" },
       { name: "LASER Characteristics (chirp, noise, threshold)", freq: "3/4 years", video: "V8" },
     ]
   },
   {
-    level: "⭐⭐ Medium Priority", color: "#60A5FA",
+    level: "Medium Priority", color: "#60A5FA",
     topics: [
       { name: "He-Ne Laser with Diagram", freq: "2023, 2024", video: "V8" },
-      { name: "SPM + Group Velocity Dispersion", freq: "2022, 2023 (❌ not in playlist)", video: "— Study separately" },
+      { name: "SPM + Group Velocity Dispersion", freq: "2022, 2023 (not in playlist)", video: "— Study separately" },
       { name: "Attenuation Measurement (Cutback Method)", freq: "2023, 2024", video: "V25" },
-      { name: "Kerr Non-linearity", freq: "2023, 2025 (❌ not in playlist)", video: "— Study separately" },
+      { name: "Kerr Non-linearity", freq: "2023, 2025 (not in playlist)", video: "— Study separately" },
       { name: "Rise Time Budget", freq: "2025", video: "V16, V28" },
       { name: "Fiber Fabrication + Materials", freq: "2022, 2024", video: "— Study separately" },
       { name: "Step Index vs Graded Index (define)", freq: "2023, 2024", video: "V3" },
@@ -1529,7 +1529,7 @@ const priorityData = [
     ]
   },
   {
-    level: "⭐ Low Priority", color: "#888",
+    level: "Low Priority", color: "#888",
     topics: [
       { name: "Phototransistor Working", freq: "Rarely asked", video: "V14" },
       { name: "FDDI / SONET", freq: "Not in PYQs", video: "V21 (Skip)" },
@@ -1551,21 +1551,21 @@ function unitBadge(unit) {
 }
 
 function actionBadge(action) {
-  const map = { watch: ["badge-watch","▶ Watch"], "1.5x": ["badge-1x5","⚡ 1.5x"], "2x": ["badge-2x","⏩ 2x Speed"], skip: ["badge-skip","✕ Skip"] };
+  const map = { watch: ["badge-watch","Watch"], "1.5x": ["badge-1x5","1.5x"], "2x": ["badge-2x","2x Speed"], skip: ["badge-skip","Skip"] };
   const [cls, label] = map[action] || ["",""];
   return `<span class="badge ${cls}">${label}</span>`;
 }
 
 function pyqBadge(pyq) {
-  if (pyq === "yes") return `<span class="badge badge-pyq-yes">✓ Yes</span>`;
-  if (pyq === "partial") return `<span class="badge badge-pyq-partial">~ Partial</span>`;
-  return `<span class="badge badge-pyq-no">— No</span>`;
+  if (pyq === "yes") return `<span class="badge badge-pyq-yes">Yes</span>`;
+  if (pyq === "partial") return `<span class="badge badge-pyq-partial">Partial</span>`;
+  return `<span class="badge badge-pyq-no">No</span>`;
 }
 
 function statusBadge(status) {
-  if (status === "ok") return `<span class="badge badge-pyq-yes">✅ Covered</span>`;
-  if (status === "partial") return `<span class="badge badge-pyq-partial">⚠ Partial</span>`;
-  return `<span class="badge badge-pyq-no" style="color:var(--red);border-color:rgba(255,69,69,0.3);background:var(--red-dim)">❌ Not Covered</span>`;
+  if (status === "ok") return `<span class="badge badge-pyq-yes">Covered</span>`;
+  if (status === "partial") return `<span class="badge badge-pyq-partial">Partial</span>`;
+  return `<span class="badge badge-pyq-no" style="color:var(--red);border-color:rgba(255,69,69,0.3);background:var(--red-dim)">Not Covered</span>`;
 }
 
 // Render video table
@@ -1622,10 +1622,10 @@ gaps.forEach(g => {
   const card = document.createElement("div");
   card.className = `gap-card ${g.sev}`;
   card.innerHTML = `
-    <div class="gap-tag ${g.sev}">${g.sev === 'critical' ? '🔴 CRITICAL' : '🟡 HIGH PRIORITY'}</div>
+    <div class="gap-tag ${g.sev}">${g.sev === 'critical' ? 'CRITICAL' : 'HIGH PRIORITY'}</div>
     <div class="gap-title">${g.title}</div>
-    <div class="gap-pyq">📋 PYQ: ${g.pyq}</div>
-    <div class="gap-action"><span class="gap-action-icon">💡</span><span>${g.action}</span></div>
+    <div class="gap-pyq">PYQ: ${g.pyq}</div>
+    <div class="gap-action"><span class="gap-action-icon"></span><span>${g.action}</span></div>
   `;
   gapGrid.appendChild(card);
 });
@@ -1644,7 +1644,7 @@ function renderPYQ(data) {
 
   data.forEach(p => {
     const f = freqMap[p.question] || 1;
-    const stars = f >= 3 ? "👑 " + f + " years" : f === 2 ? "🔥 " + f + " years" : "· 1 year";
+    const stars = f >= 3 ? "" + f + " years" : f === 2 ? "" + f + " years" : "· 1 year";
     const tr = document.createElement("tr");
     tr.dataset.year = p.year;
     tr.dataset.status = p.status;
